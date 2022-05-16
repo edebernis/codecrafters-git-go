@@ -211,7 +211,7 @@ func hashTree(root string) (string, error) {
 	h.Write([]byte(content))
 	treeSha := hex.EncodeToString(h.Sum(nil))
 
-	if err := writeObject(treeSha, data); err != nil {
+	if err := writeObject(treeSha, content); err != nil {
 		return "", fmt.Errorf("failed to write tree object: %w", err)
 	}
 
