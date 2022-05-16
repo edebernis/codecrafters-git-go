@@ -17,7 +17,7 @@ func main() {
 		handleInit()
 	case "cat-file":
 		if err := handleCatFile(os.Args[2:]); err != nil {
-			fmt.Println("failed to handle cat-file command: %s", err.Error())
+			fmt.Printf("failed to handle cat-file command: %s\n", err.Error())
 			os.Exit(1)
 		}
 	default:
@@ -50,7 +50,7 @@ func handleCatFile(args []string) error {
 	}
 	blobSha := args[1]
 
-	path := filepath.Join(".git", "objects", blobSha[0:1], blobSha[2:])
+	path := filepath.Join(".git", "objects", blobSha[0:2], blobSha[2:])
 	f, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open blob file %s: %w", path, err)
