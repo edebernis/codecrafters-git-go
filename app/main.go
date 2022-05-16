@@ -280,8 +280,8 @@ func handleCommitTree(args []string) error {
 
 	content := "tree " + treeSha + `
 parent ` + parentCommitSha + `
-author Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
-committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
+author Emeric de Bernis <emeric.debernis@qonto.com> 1652700438 +0200
+committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700438 +0200
 
 ` + message
 
