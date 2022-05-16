@@ -111,7 +111,7 @@ func handleHashObject(args []string) error {
 	data := fmt.Sprintf("blob %d\x00%s", len(content), content)
 
 	h := sha1.New()
-	h.Write(data)
+	h.Write([]byte(data))
 	blobSha := hex.EncodeToString(h.Sum(nil))
 
 	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
