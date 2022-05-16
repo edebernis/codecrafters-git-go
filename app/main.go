@@ -108,11 +108,12 @@ func handleHashObject(args []string) error {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
 
+	data := fmt.Sprintf("blob %d\x00%s", len(content), content)
+
 	h := sha1.New()
-	h.Write(content)
+	h.Write(data)
 	blobSha := hex.EncodeToString(h.Sum(nil))
 
-	data := fmt.Sprintf("blob %d\x00%s", len(content), content)
 	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
 
 	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
