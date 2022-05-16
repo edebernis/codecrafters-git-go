@@ -39,6 +39,11 @@ func main() {
 			fmt.Printf("failed to handle write-tree command: %s\n", err.Error())
 			os.Exit(1)
 		}
+	case "commit-tree":
+		if err := handleCommitTree(os.Args[2:]); err != nil {
+			fmt.Printf("failed to handle commit-tree command: %s\n", err.Error())
+			os.Exit(1)
+		}
 	default:
 		fmt.Println("Unknown command %s", command)
 		os.Exit(1)
@@ -261,6 +266,33 @@ func writeObject(sha, data string) error {
 		return fmt.Errorf("failed to write blob: %w", err)
 	}
 	defer zw.Close()
+
+	return nil
+}
+
+func handleCommitTree(args []string) error {
+	if len(args) < 5 {
+		return errors.New("insufficient arguments for commit-tree command")
+	}
+	treeSha := args[0]
+	commitSha := args[2]
+	message := args[4]
+
+	content = "tree " + treeSha + `
+author Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
+committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
+
+` + message
+
+	data := fmt.Sprintf("commit %d\x00%s", len(content), content)
+
+	h := sha1.New()
+	h.Write([]byte(data))
+	commitSha := hex.EncodeToString(h.Sum(nil))
+
+	if err := writeObject(commitSha, data); err != nil {
+		return fmt.Errorf("failed to write commit object: %w", err)
+	}
 
 	return nil
 }
