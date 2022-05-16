@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Usage: your_git.sh run <image> <command> <arg1> <arg2> ...
@@ -62,11 +63,11 @@ func handleCatFile(args []string) error {
 		return fmt.Errorf("failed to zlib uncompress blob file: %w", err)
 	}
 
-	header, err := bufio.NewReader(r).ReadString('\00')
+	header, err := bufio.NewReader(r).ReadString('\x00')
 	if err != nil {
 		return fmt.Errorf("failed to read blob header: %w", err)
 	}
-	header = header[:-1]
+	header = strings.TrimRight(header, "\x00")
 
 	content, err := io.ReadAll(r)
 	if err != nil {
