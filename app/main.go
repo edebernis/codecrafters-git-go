@@ -131,5 +131,6 @@ func handleHashObject(args []string) error {
 	}
 	defer zw.Close()
 
+	fmt.Print(blobSha)
 	return nil
 }
