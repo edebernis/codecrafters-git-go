@@ -63,13 +63,15 @@ func handleCatFile(args []string) error {
 		return fmt.Errorf("failed to zlib uncompress blob file: %w", err)
 	}
 
-	header, err := bufio.NewReader(r).ReadString('\x00')
+	reader := bufio.NewReader(r)
+
+	header, err := reader.ReadString('\x00')
 	if err != nil {
 		return fmt.Errorf("failed to read blob header: %w", err)
 	}
 	header = strings.TrimRight(header, "\x00")
 
-	content, err := io.ReadAll(r)
+	content, err := io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("failed to read blob file content: %w", err)
 	}
