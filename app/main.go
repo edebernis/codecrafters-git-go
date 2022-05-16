@@ -194,14 +194,14 @@ func hashTree(root string) (string, error) {
 			if err != nil {
 				return "", fmt.Errorf("failed to hash tree: %w", err)
 			}
-			data += fmt.Sprintf("40000 %s\x00%s", f.Name(), treeSha)
+			data += ("40000 " + f.Name() + rune(0) + treeSha)
 			continue
 		}
 		blobSha, err := hashBlob(path)
 		if err != nil {
 			return "", fmt.Errorf("failed to hash blob: %w", err)
 		}
-		data += fmt.Sprintf("100644 %s\x00%s", f.Name(), blobSha)
+		data += ("100644 " + f.Name() + rune(0) + blobSha)
 	}
 
 	content := fmt.Sprintf("tree %d\x00%s", len(data), data)
