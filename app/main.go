@@ -295,6 +295,5 @@ committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
 		return fmt.Errorf("failed to write commit object: %w", err)
 	}
 
-	fmt.Print(commitSha)
 	return nil
 }
