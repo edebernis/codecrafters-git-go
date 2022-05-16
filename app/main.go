@@ -185,6 +185,9 @@ func hashTree(root string) (string, error) {
 	}
 
 	for _, f := range files {
+		if f.Name() == ".git" {
+			continue
+		}
 		path := filepath.Join(root, f.Name())
 		if f.IsDir() {
 			treeSha, err := hashTree(path)
