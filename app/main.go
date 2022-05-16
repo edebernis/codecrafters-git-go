@@ -172,11 +172,11 @@ func handleWriteTree(args []string) error {
 		return fmt.Errorf("failed to hash working directory tree: %w", err)
 	}
 
-	fmt.Print(treeSha)
+	fmt.Print(hex.EncodeToString(treeSha))
 	return nil
 }
 
-func hashTree(root string) (string, error) {
+func hashTree(root string) ([]byte, error) {
 	var data string
 
 	files, err := ioutil.ReadDir(root)
@@ -194,7 +194,7 @@ func hashTree(root string) (string, error) {
 			if err != nil {
 				return "", fmt.Errorf("failed to hash tree: %w", err)
 			}
-			data += fmt.Sprintf("40000 %s\x00%s", f.Name(), treeSha)
+			data += fmt.Sprintf("40000 %s\x00%s", f.Name(), string(treeSha))
 			continue
 		}
 		blobSha, err := hashBlob(path)
