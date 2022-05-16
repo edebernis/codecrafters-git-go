@@ -113,22 +113,23 @@ func handleHashObject(args []string) error {
 	blobSha := hex.EncodeToString(h.Sum(nil))
 
 	data := fmt.Sprintf("blob %d\x00%s", len(blobSha), blobSha)
-
 	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
+
+	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
+		return fmt.Errorf("failed to create object dir: %w", err)
+	}
+
 	w, err := os.Create(objPath)
 	if err != nil {
 		return fmt.Errorf("failed to create file %s: %w", objPath, err)
 	}
 	defer w.Close()
 
-	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
-		return fmt.Errorf("failed to create object dir: %w", err)
-	}
-
 	zw := zlib.NewWriter(w)
 	if _, err = zw.Write([]byte(data)); err != nil {
 		return fmt.Errorf("failed to write blob: %w", err)
 	}
+	defer zw.Close()
 
 	fmt.Print(blobSha)
 	return nil
