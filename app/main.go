@@ -29,6 +29,11 @@ func main() {
 			fmt.Printf("failed to handle hash-object command: %s\n", err.Error())
 			os.Exit(1)
 		}
+	case "ls-tree":
+		if err := handleLsTree(os.Args[2:]); err != nil {
+			fmt.Printf("failed to handle ls-tree command: %s\n", err.Error())
+			os.Exit(1)
+		}
 	default:
 		fmt.Println("Unknown command %s", command)
 		os.Exit(1)
@@ -133,5 +138,55 @@ func handleHashObject(args []string) error {
 	defer zw.Close()
 
 	fmt.Print(blobSha)
+	return nil
+}
+
+func handleLsTree(args []string) error {
+	if len(args) < 2 {
+		return errors.New("insufficient arguments for ls-tree command")
+	}
+	if args[0] != "--name-only" {
+		return errors.New("only supported flag is --name-only for ls-tree command")
+	}
+	treeSha := args[1]
+
+	path := filepath.Join(".git", "objects", treeSha[0:2], treeSha[2:])
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to open tree file %s: %w", path, err)
+	}
+	defer f.Close()
+
+	r, err := zlib.NewReader(f)
+	if err != nil {
+		return fmt.Errorf("failed to zlib uncompress tree file: %w", err)
+	}
+
+	reader := bufio.NewReader(r)
+
+	header, err := reader.ReadString('\x00')
+	if err != nil {
+		return fmt.Errorf("failed to read tree header: %w", err)
+	}
+	header = strings.TrimRight(header, "\x00")
+
+	for {
+		entry, err := reader.ReadString('\x00')
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return fmt.Errorf("failed to read entry: %w", err)
+		}
+		entry = strings.TrimRight(entry, "\x00")
+
+		splitEntry := strings.Split(entry, " ")
+		fmt.Println(splitEntry[1])
+
+		if _, err := io.ReadFull(reader, make([]byte, 20)); err != nil {
+			return fmt.Errorf("failed to read entry sha: %w", err)
+		}
+	}
+
 	return nil
 }
