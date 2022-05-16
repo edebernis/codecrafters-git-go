@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"compress/zlib"
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"io"
@@ -20,6 +21,11 @@ func main() {
 	case "cat-file":
 		if err := handleCatFile(os.Args[2:]); err != nil {
 			fmt.Printf("failed to handle cat-file command: %s\n", err.Error())
+			os.Exit(1)
+		}
+	case "hash-object":
+		if err := handleHashObject(os.Args[2:]); err != nil {
+			fmt.Printf("failed to handle hash-object command: %s\n", err.Error())
 			os.Exit(1)
 		}
 	default:
@@ -57,6 +63,7 @@ func handleCatFile(args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open blob file %s: %w", path, err)
 	}
+	defer f.Close()
 
 	r, err := zlib.NewReader(f)
 	if err != nil {
@@ -77,5 +84,51 @@ func handleCatFile(args []string) error {
 	}
 
 	fmt.Print(string(content))
+	return nil
+}
+
+func handleHashObject(args []string) error {
+	if len(args) < 2 {
+		return errors.New("insufficient arguments for hash-object command")
+	}
+	if args[0] != "-w" {
+		return errors.New("only supported flag is -w for hash-object command")
+	}
+	path := args[1]
+
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s: %w", path, err)
+	}
+	defer f.Close()
+
+	content, err := io.ReadAll(f)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+
+	h := sha1.New()
+	h.Write(content)
+	blobSha := h.Sum(nil)
+
+	data := fmt.Sprintf("blob %d\x00%s", len(blobSha), string(blobSha))
+
+	objPath := filepath.Join(".git", "objects", blobSha[0:2], blobSha[2:])
+	w, err := os.Create(objPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file %s: %w", objPath, err)
+	}
+	defer w.Close()
+
+	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
+		return fmt.Errorf("failed to create object dir: %w", err)
+	}
+
+	zw := zlib.NewWriter(w)
+	if _, err = zw.Write([]byte(data)); err != nil {
+		return fmt.Errorf("failed to write blob: %w", err)
+	}
+
+	fmt.Print(string(blobSha))
 	return nil
 }
