@@ -181,7 +181,7 @@ func hashTree(root string) (string, error) {
 
 	files, err := ioutil.ReadDir(root)
 	if err != nil {
-		return fmt.Errorf("failed to read working directory: %w", err)
+		return "", fmt.Errorf("failed to read working directory: %w", err)
 	}
 
 	for _, f := range files {
@@ -189,14 +189,14 @@ func hashTree(root string) (string, error) {
 		if f.IsDir() {
 			treeSha, err := hashTree(path)
 			if err != nil {
-				return fmt.Errorf("failed to hash tree: %w", err)
+				return "", fmt.Errorf("failed to hash tree: %w", err)
 			}
 			data += fmt.Sprintf("40000 %s\x00%s", f.Name(), treeSha)
 			continue
 		}
 		blobSha, err := hashBlob(path)
 		if err != nil {
-			return fmt.Errorf("failed to hash blob: %w", err)
+			return "", fmt.Errorf("failed to hash blob: %w", err)
 		}
 		data += fmt.Sprintf("100644 %s\x00%s", f.Name(), blobSha)
 	}
@@ -210,17 +210,17 @@ func hashTree(root string) (string, error) {
 	objPath := filepath.Join(".git", "objects", string(treeSha[0:2]), string(treeSha[2:]))
 
 	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
-		return fmt.Errorf("failed to create object dir: %w", err)
+		return "", fmt.Errorf("failed to create object dir: %w", err)
 	}
 
 	w, err := os.Create(objPath)
 	if err != nil {
-		return fmt.Errorf("failed to create file %s: %w", objPath, err)
+		return "", fmt.Errorf("failed to create file %s: %w", objPath, err)
 	}
 	defer w.Close()
 
 	if _, err = w.Write([]byte(data)); err != nil {
-		return fmt.Errorf("failed to write tree: %w", err)
+		return "", fmt.Errorf("failed to write tree: %w", err)
 	}
 
 	return treeSha, nil
@@ -229,13 +229,13 @@ func hashTree(root string) (string, error) {
 func hashBlob(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return fmt.Errorf("failed to open file %s: %w", path, err)
+		return "", fmt.Errorf("failed to open file %s: %w", path, err)
 	}
 	defer f.Close()
 
 	content, err := io.ReadAll(f)
 	if err != nil {
-		return fmt.Errorf("failed to read file: %w", err)
+		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
 	data := fmt.Sprintf("blob %d\x00%s", len(content), content)
@@ -247,18 +247,18 @@ func hashBlob(path string) (string, error) {
 	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
 
 	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
-		return fmt.Errorf("failed to create object dir: %w", err)
+		return "", fmt.Errorf("failed to create object dir: %w", err)
 	}
 
 	w, err := os.Create(objPath)
 	if err != nil {
-		return fmt.Errorf("failed to create file %s: %w", objPath, err)
+		return "", fmt.Errorf("failed to create file %s: %w", objPath, err)
 	}
 	defer w.Close()
 
 	zw := zlib.NewWriter(w)
 	if _, err = zw.Write([]byte(data)); err != nil {
-		return fmt.Errorf("failed to write blob: %w", err)
+		return "", fmt.Errorf("failed to write blob: %w", err)
 	}
 	defer zw.Close()
 
