@@ -117,7 +117,7 @@ func handleHashObject(args []string) error {
 		return fmt.Errorf("failed to hash object: %w", err)
 	}
 
-	fmt.Print(string(blobSha))
+	fmt.Print(hex.EncodeToString(blobSha))
 	return nil
 }
 
