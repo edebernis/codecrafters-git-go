@@ -107,6 +107,7 @@ func handleHashObject(args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
+	fmt.Println(content)
 
 	h := sha1.New()
 	h.Write(content)
