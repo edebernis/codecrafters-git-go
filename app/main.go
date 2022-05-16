@@ -67,4 +67,5 @@ func handleCatFile(args []string) error {
 	}
 
 	fmt.Println(string(content))
+	return nil
 }
