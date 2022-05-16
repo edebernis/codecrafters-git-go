@@ -278,7 +278,7 @@ func handleCommitTree(args []string) error {
 	commitSha := args[2]
 	message := args[4]
 
-	content = "tree " + treeSha + `
+	content := "tree " + treeSha + `
 author Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
 committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
 
