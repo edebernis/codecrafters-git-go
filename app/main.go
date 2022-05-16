@@ -275,10 +275,11 @@ func handleCommitTree(args []string) error {
 		return errors.New("insufficient arguments for commit-tree command")
 	}
 	treeSha := args[0]
-	commitSha := args[2]
+	parentCommitSha := args[2]
 	message := args[4]
 
 	content := "tree " + treeSha + `
+parent ` + parentCommitSha + `
 author Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
 committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700437 +0200
 
