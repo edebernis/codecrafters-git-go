@@ -117,7 +117,7 @@ func handleHashObject(args []string) error {
 		return fmt.Errorf("failed to hash object: %w", err)
 	}
 
-	fmt.Print(blobSha)
+	fmt.Print(string(blobSha))
 	return nil
 }
 
@@ -223,16 +223,16 @@ func hashTree(root string) ([]byte, error) {
 	return treeSha, nil
 }
 
-func hashBlob(path string) (string, error) {
+func hashBlob(path string) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to open file %s: %w", path, err)
+		return nil, fmt.Errorf("failed to open file %s: %w", path, err)
 	}
 	defer f.Close()
 
 	content, err := io.ReadAll(f)
 	if err != nil {
-		return "", fmt.Errorf("failed to read file: %w", err)
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
 	data := fmt.Sprintf("blob %d\x00%s", len(content), content)
@@ -243,7 +243,7 @@ func hashBlob(path string) (string, error) {
 	blobShaHex := hex.EncodeToString(blobSha)
 
 	if err := writeObject(blobShaHex, data); err != nil {
-		return "", fmt.Errorf("failed to write blob object: %w", err)
+		return nil, fmt.Errorf("failed to write blob object: %w", err)
 	}
 
 	return blobSha, nil
