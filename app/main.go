@@ -239,7 +239,7 @@ func hashBlob(path string) (string, error) {
 
 	h := sha1.New()
 	h.Write([]byte(data))
-	blobSha := h.Sum(nil))
+	blobSha := h.Sum(nil)
 	blobShaHex := hex.EncodeToString(blobSha)
 
 	if err := writeObject(blobShaHex, data); err != nil {
