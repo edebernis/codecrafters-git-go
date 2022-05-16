@@ -113,7 +113,7 @@ func handleHashObject(args []string) error {
 
 	data := fmt.Sprintf("blob %d\x00%s", len(blobSha), string(blobSha))
 
-	objPath := filepath.Join(".git", "objects", blobSha[0:2], blobSha[2:])
+	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
 	w, err := os.Create(objPath)
 	if err != nil {
 		return fmt.Errorf("failed to create file %s: %w", objPath, err)
