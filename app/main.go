@@ -242,7 +242,7 @@ func hashBlob(path string) (string, error) {
 func writeObject(sha, data string) error {
 	objPath := filepath.Join(".git", "objects", string(sha[0:2]), string(sha[2:]))
 
-	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
 		return fmt.Errorf("failed to create object dir: %w", err)
 	}
 
