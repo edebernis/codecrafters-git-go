@@ -239,9 +239,10 @@ func hashBlob(path string) (string, error) {
 
 	h := sha1.New()
 	h.Write([]byte(data))
-	blobSha := hex.EncodeToString(h.Sum(nil))
+	blobSha := h.Sum(nil))
+	blobShaHex := hex.EncodeToString(blobSha)
 
-	if err := writeObject(blobSha, data); err != nil {
+	if err := writeObject(blobShaHex, data); err != nil {
 		return "", fmt.Errorf("failed to write blob object: %w", err)
 	}
 
