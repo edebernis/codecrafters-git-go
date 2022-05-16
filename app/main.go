@@ -283,7 +283,7 @@ parent ` + parentCommitSha + `
 author Emeric de Bernis <emeric.debernis@qonto.com> 1652700433 +0200
 committer Emeric de Bernis <emeric.debernis@qonto.com> 1652700433 +0200
 
-` + message
+` + message + "\n"
 
 	data := fmt.Sprintf("commit %d\x00%s", len(content), content)
 
