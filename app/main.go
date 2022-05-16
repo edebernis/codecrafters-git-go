@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"compress/zlib"
 	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -109,9 +110,9 @@ func handleHashObject(args []string) error {
 
 	h := sha1.New()
 	h.Write(content)
-	blobSha := h.Sum(nil)
+	blobSha := hex.EncodeToString(h.Sum(nil))
 
-	data := fmt.Sprintf("blob %d\x00%s", len(blobSha), string(blobSha))
+	data := fmt.Sprintf("blob %d\x00%s", len(blobSha), blobSha)
 
 	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
 	w, err := os.Create(objPath)
@@ -129,6 +130,6 @@ func handleHashObject(args []string) error {
 		return fmt.Errorf("failed to write blob: %w", err)
 	}
 
-	fmt.Print(string(blobSha))
+	fmt.Print(blobSha)
 	return nil
 }
