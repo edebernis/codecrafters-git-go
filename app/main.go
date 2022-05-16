@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"compress/zlib"
 	"errors"
 	"fmt"
@@ -61,11 +62,17 @@ func handleCatFile(args []string) error {
 		return fmt.Errorf("failed to zlib uncompress blob file: %w", err)
 	}
 
+	header, err := bufio.NewReader(r).ReadString('\00')
+	if err != nil {
+		return fmt.Errorf("failed to read blob header: %w", err)
+	}
+	header = header[:-1]
+
 	content, err := io.ReadAll(r)
 	if err != nil {
-		return fmt.Errorf("failed to read blob file: %w", err)
+		return fmt.Errorf("failed to read blob file content: %w", err)
 	}
 
-	fmt.Println(string(content))
+	fmt.Print(string(content))
 	return nil
 }
