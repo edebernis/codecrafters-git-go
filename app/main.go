@@ -181,7 +181,7 @@ func hashTree(root string) ([]byte, error) {
 
 	files, err := ioutil.ReadDir(root)
 	if err != nil {
-		return "", fmt.Errorf("failed to read working directory: %w", err)
+		return nil, fmt.Errorf("failed to read working directory: %w", err)
 	}
 
 	for _, f := range files {
@@ -192,14 +192,14 @@ func hashTree(root string) ([]byte, error) {
 		if f.IsDir() {
 			treeSha, err := hashTree(path)
 			if err != nil {
-				return "", fmt.Errorf("failed to hash tree: %w", err)
+				return nil, fmt.Errorf("failed to hash tree: %w", err)
 			}
 			data += fmt.Sprintf("40000 %s\x00%s", f.Name(), string(treeSha))
 			continue
 		}
 		blobSha, err := hashBlob(path)
 		if err != nil {
-			return "", fmt.Errorf("failed to hash blob: %w", err)
+			return nil, fmt.Errorf("failed to hash blob: %w", err)
 		}
 		data += fmt.Sprintf("100644 %s\x00%s", f.Name(), blobSha)
 	}
@@ -212,7 +212,7 @@ func hashTree(root string) ([]byte, error) {
 	treeShaHex := hex.EncodeToString(treeSha)
 
 	if err := writeObject(treeShaHex, content); err != nil {
-		return "", fmt.Errorf("failed to write tree object: %w", err)
+		return nil, fmt.Errorf("failed to write tree object: %w", err)
 	}
 
 	return treeSha, nil
