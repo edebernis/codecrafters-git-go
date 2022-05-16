@@ -202,6 +202,7 @@ func hashTree(root string) (string, error) {
 	}
 
 	content := fmt.Sprintf("tree %d\x00%s", len(data), data)
+	fmt.Println(content)
 
 	h := sha1.New()
 	h.Write([]byte(content))
