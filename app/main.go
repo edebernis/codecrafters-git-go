@@ -207,20 +207,8 @@ func hashTree(root string) (string, error) {
 	h.Write([]byte(content))
 	treeSha := hex.EncodeToString(h.Sum(nil))
 
-	objPath := filepath.Join(".git", "objects", string(treeSha[0:2]), string(treeSha[2:]))
-
-	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
-		return "", fmt.Errorf("failed to create object dir: %w", err)
-	}
-
-	w, err := os.Create(objPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to create file %s: %w", objPath, err)
-	}
-	defer w.Close()
-
-	if _, err = w.Write([]byte(data)); err != nil {
-		return "", fmt.Errorf("failed to write tree: %w", err)
+	if err := writeObject(treeSha, data); err != nil {
+		return "", fmt.Errorf("failed to write tree object: %w", err)
 	}
 
 	return treeSha, nil
@@ -244,23 +232,31 @@ func hashBlob(path string) (string, error) {
 	h.Write([]byte(data))
 	blobSha := hex.EncodeToString(h.Sum(nil))
 
-	objPath := filepath.Join(".git", "objects", string(blobSha[0:2]), string(blobSha[2:]))
+	if err := writeObject(blobSha, data); err != nil {
+		return "", fmt.Errorf("failed to write blob object: %w", err)
+	}
+
+	return blobSha, nil
+}
+
+func writeObject(sha, data string) error {
+	objPath := filepath.Join(".git", "objects", string(sha[0:2]), string(sha[2:]))
 
 	if err = os.MkdirAll(filepath.Dir(objPath), 0755); err != nil {
-		return "", fmt.Errorf("failed to create object dir: %w", err)
+		return fmt.Errorf("failed to create object dir: %w", err)
 	}
 
 	w, err := os.Create(objPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to create file %s: %w", objPath, err)
+		return fmt.Errorf("failed to create file %s: %w", objPath, err)
 	}
 	defer w.Close()
 
 	zw := zlib.NewWriter(w)
 	if _, err = zw.Write([]byte(data)); err != nil {
-		return "", fmt.Errorf("failed to write blob: %w", err)
+		return fmt.Errorf("failed to write blob: %w", err)
 	}
 	defer zw.Close()
 
-	return blobSha, nil
+	return nil
 }
